@@ -9,6 +9,15 @@ import * as mongoose from 'mongoose';
 export class CatsRepository {
   constructor(@InjectModel(Cat.name) private readonly catModel: Model<Cat>) {}
 
+  async findByIdAndUpdateImg(id: string, fileName: string) {
+    const cat = await this.catModel.findById(id);
+    cat.imgUrl = `http://localhost:8000/media/${fileName}`;
+    const newCat = await cat.save();
+    console.log(newCat);
+
+    return newCat.readOnlyData;
+  }
+
   async findCatByIdWithoutPassword(catId: string): Promise<Cat | null> {
     // select 를 사용하지 않으면 전체를 갖고오는 것이고, 가져올 필요 옶는 것은 - 를 붙여서 작성해주면 된다.
     // 그냥 email 과 name만 갖고오고싶다면 .select('email name') 을 써주면 된다.

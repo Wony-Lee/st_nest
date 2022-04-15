@@ -4,9 +4,11 @@ import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as expressBasicAuth from 'express-basic-auth';
+import * as path from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
 
@@ -19,6 +21,13 @@ async function bootstrap() {
       },
     }),
   );
+
+  // app 안에서는 useStaticAssets 가 없기때문에 에러가 뜰텐데.
+  // 이 때 맨 위에 app 선언을 한 곳에서 제네릭으로 express 라는 것을 명시해주어야한다.
+  // 첫번째 인자 http://localhost:8000/media/cats/app.png
+  app.useStaticAssets(path.join(__dirname, './common', 'uploads'), {
+    prefix: '/media',
+  });
   const config = new DocumentBuilder()
     .setTitle('C.I.C')
     .setDescription('cat')
