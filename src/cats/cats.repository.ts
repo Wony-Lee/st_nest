@@ -4,13 +4,20 @@ import { Cat } from './cats.schema';
 import { Model, Types } from 'mongoose';
 import { CatRequestDto } from './dto/cats.request.dto';
 import * as mongoose from 'mongoose';
+import { CommentsSchema } from '../comments/comments.schema';
 
 @Injectable()
 export class CatsRepository {
   constructor(@InjectModel(Cat.name) private readonly catModel: Model<Cat>) {}
 
   async findAll() {
-    return await this.catModel.find();
+    // const CommentsModel = mongoose.model('comments', CommentsSchema); // 스키마 이름, 그리고 스키마
+    const CommentsModel = mongoose.model('comments', CommentsSchema); // 스키마 이름, 그리고 스키마
+    const result = await this.catModel
+      .find()
+      .populate('comments', CommentsModel); // 다른 도큐멘트와 연결해주는 메서드다.
+
+    return result;
   }
 
   async findByIdAndUpdateImg(id: string, fileName: string) {
@@ -22,7 +29,9 @@ export class CatsRepository {
     return newCat.readOnlyData;
   }
 
-  async findCatByIdWithoutPassword(catId: string): Promise<Cat | null> {
+  async findCatByIdWithoutPassword(
+    catId: string | Types.ObjectId,
+  ): Promise<Cat | null> {
     // select 를 사용하지 않으면 전체를 갖고오는 것이고, 가져올 필요 옶는 것은 - 를 붙여서 작성해주면 된다.
     // 그냥 email 과 name만 갖고오고싶다면 .select('email name') 을 써주면 된다.
     // password 를 갖고올 필요가 없으니 -password를 입력해주면된다.
