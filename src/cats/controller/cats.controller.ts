@@ -91,4 +91,10 @@ export class CatsController {
     // cat에 대한 정보를 가져오려면 Jwt에 저장된 내 정보를 갖고와야한다.
     return this.catsService.uploadImg(cat, files);
   }
+
+  @ApiOperation({ summary: '모든 고양이 가져오기' })
+  @Get('all')
+  getAllCat() {
+    return this.catsService.getAllCat();
+  }
 }
